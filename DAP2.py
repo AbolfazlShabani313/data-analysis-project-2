@@ -27,3 +27,26 @@ sorted_scores = sorted(similarity_scores.items(), key=lambda x: x[1], reverse=Tr
 print("میزان شباهت ساده با مشتریان قبلی (تعداد تطابق):")
 for name, score in sorted_scores:
     print(f"{name}: {score} ویژگی مشابه")
+# 7. ساخت سری از خرید مشتری جدید برای مقایسه
+new_series = pd.Series(new_purchase, index=matrix.columns)
+
+# 8. شبیه‌ترین مشتری‌ها (مثلاً اونایی که 4 یا 5 ویژگی مشابه داشتن)
+max_match = max(similarity_scores.values())
+top_customers = [name for name, score in similarity_scores.items() if score == max_match]
+
+# 9. بررسی کالاهایی که اون مشتری‌ها خریدن و مشتری جدید هنوز نخریده
+suggested_items = pd.Series(0, index=matrix.columns)
+
+for name in top_customers:
+    customer_purchases = matrix.loc[name]
+    # فقط کالاهایی که مشتری مشابه خریده و مشتری جدید نخریده
+    mask = (customer_purchases == 1) & (new_series == 0)
+    suggested_items += mask.astype(int)
+
+# مرتب‌سازی پیشنهادات
+suggested_items = suggested_items[suggested_items > 0].sort_values(ascending=False)
+
+print("\n پیشنهاد کالا به مشتری جدید:")
+print(suggested_items)
+    
+
